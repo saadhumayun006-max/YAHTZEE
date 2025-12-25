@@ -22,5 +22,8 @@ This is a card game built in Java. The objective is simple: be the first player 
 * **Move Tracking:** The game actively tracks and displays the number of moves the player has made during the session.
 * **Retry System:** Users have access to a retry button to restart the game immediately or can choose to exit the application.
 
+## Preview  
+<img width="1077" height="657" alt="pasted-image" src="https://github.com/user-attachments/assets/5a8e41a1-2205-49cf-ad11-830dd3e0edd1" />
+
 ## 👤 Author
 * Saad Butt
