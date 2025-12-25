@@ -1,0 +1,315 @@
+/* Crazy Eight Game View
+ * Created by Saad Butt
+ * Last Updated 2025/01/20
+ * To create a view for the Crazy Eight Game
+ */
+
+import javax.imageio.*;
+import javax.swing.*;
+import java.awt.*;
+
+public class CrazyEightView extends JPanel
+{
+  //Variable Initialization and Decleration
+  CrazyEightGame model;                                                //The model
+  BorderLayout mainLayout = new BorderLayout();                        //Borderlayout for the entire JPanel
+  GridLayout startLayout = new GridLayout(6, 1 ,0 ,10);                 //Gridlayout for the start screen
+  GridLayout endLayout = new GridLayout(2, 1 ,0 ,10);                   //Gridlayout for the end screen
+  GridLayout statsLayout = new GridLayout(3, 1 ,0 ,10);                 //Gridlayout for the stats
+  GridLayout optionsLayout = new GridLayout(2, 1 ,0 ,10);               //Gridlayout for the options 
+  GridLayout compCardsLayout = new GridLayout(1 ,7 , 10 ,0);           //Gridlayout for the computer cards
+  GridLayout playerCardsLayout = new GridLayout(1 ,7 , -2 ,0);         //Gridlayout for the players cards
+  GridLayout currentCardLayout = new GridLayout(1 ,2, -700, 0);        //Gridlayout for the current card and deck                                                                     
+  JPanel northMain = new JPanel();                                     //The panel for both the computer cards and options
+  JPanel southMain = new JPanel();                                     //The panel for both the player cards and stats
+  JPanel currentCard = new JPanel();                                   //Panel for the current card and deck
+  JPanel starter = new JPanel();                                       //Panel for the start screen
+  JPanel compCards = new JPanel();                                     //Panel for the computer's cards
+  JPanel playerCards = new JPanel();                                   //Panel for the player's cards
+  JPanel options = new JPanel();                                       //Panel for the options
+  JPanel stats = new JPanel();                                         //Panel for the stats
+  JPanel endScreen = new JPanel();                                     //Panel for the end screeen
+  JButton exitButton = new JButton("Exit");                            //Button to exit game
+  JButton replayButton = new JButton("Retry");                         //Button to retry round
+  JButton startButton = new JButton("Start");                          //Button to start game
+  JButton confirmButton = new JButton("Confirm");                      //Button to confirm selection of cards
+  JButton nextRoundButton = new JButton("Next Round");                 //Button to go next round        
+  JButton saveGameButtton = new JButton("Save Game");                  //Button to save game
+  JButton loadGameButton = new JButton("Load Game");                         //Button to load game
+  JLabel playerScores = new JLabel();                                  //Label of the computer and player wins
+  JLabel movesTaken = new JLabel();                                    //Label of the moves taken by the player
+  JLabel [] computerCardImage = new JLabel[7];                         //Label for the computer's cards
+  JLabel deckImage = new JLabel();                                     //Label for the deck
+  JLabel currentCardImage = new JLabel();                              //Label for the current card
+  JLabel playerCardImage1 = new JLabel();                              //Label for the palyer's cards 1-7
+  JLabel playerCardImage2 = new JLabel();;
+  JLabel playerCardImage3 = new JLabel();;
+  JLabel playerCardImage4 = new JLabel();;
+  JLabel playerCardImage5 = new JLabel();;
+  JLabel playerCardImage6 = new JLabel();;
+  JLabel playerCardImage7 = new JLabel();;
+  JLabel winnerofGameLabel = new JLabel();                            //Label of the winner of the game 
+  JLabel winner = new JLabel();                                       //Label of the winner of the round 
+  JLabel roundsLabel = new JLabel("Enter the Rounds");                //Label to tell the palyer to enter rounds
+  JTextField roundsField = new JTextField(8);                         //TextField for the rounds
+  ImageIcon deckImageIcon = new ImageIcon();                          //The deck ImageIcon
+  JFileChooser chooseFile = new JFileChooser();                       //For the user to get a file
+  
+  /* Default Constructor for the View
+   * Assigns Model and View, connect controller and draw View
+   * Param: the model of the game
+   */
+  public CrazyEightView(CrazyEightGame model)
+  {
+    super();
+    this.model = model;
+    this.model.setView(this);
+    this.layoutView();
+    this.registerControllers();
+    this.update();
+  }
+  
+  
+  //Draws the initial layout for the game
+  private void layoutView()
+  { 
+    //Assemble components for start screen
+    this.starter.setLayout(startLayout);
+    this.starter.add(winnerofGameLabel);
+    this.starter.add(roundsLabel);
+    this.starter.add(roundsField);
+    this.starter.add(startButton);
+    this.starter.add(loadGameButton);
+    this.starter.add(saveGameButtton);
+    
+    //Assemble components for end screen
+    endScreen.setLayout(endLayout);
+    this.nextRoundButton.setPreferredSize(new Dimension(100,50));
+    this.endScreen.add(winner);
+    this.endScreen.add(nextRoundButton);
+    
+    //Set image of the deck
+    this.deckImageIcon = new ImageIcon("CardImages/backside.png");
+  }
+  
+  //Register all the controllers for the buttons and labels
+  private void registerControllers()
+  {
+    if(this.model.getGameDisplay() == 1 || this.model.getGameDisplay() == 3 )
+    {
+      //Register Buttons
+      CrazyEightButtonController buttonCntrl = new CrazyEightButtonController(this.model, this.roundsField);
+      this.startButton.addActionListener(buttonCntrl);
+      this.confirmButton.addActionListener(buttonCntrl);
+      this.replayButton.addActionListener(buttonCntrl);
+      this.exitButton.addActionListener(buttonCntrl);
+      this.nextRoundButton.addActionListener(buttonCntrl);
+    }
+    
+    if(this.model.getGameDisplay() == 2)
+    {
+      //Register Labels
+      CrazyEightCardController cardCntrl = new CrazyEightCardController(this.model);
+      this.playerCardImage1.addMouseListener(cardCntrl);
+      this.playerCardImage2.addMouseListener(cardCntrl);
+      this.playerCardImage3.addMouseListener(cardCntrl);
+      this.playerCardImage4.addMouseListener(cardCntrl);
+      this.playerCardImage5.addMouseListener(cardCntrl);
+      this.playerCardImage6.addMouseListener(cardCntrl);
+      this.playerCardImage7.addMouseListener(cardCntrl);
+      this.deckImage.addMouseListener(cardCntrl);
+    }
+  }
+  
+  //Everything onscreen that gets updated
+  public void update()
+  {
+    //Set to starter screen
+    if (this.model.getGameDisplay() == 1 || this.model.getGameDisplay() == 5)
+    {
+      this.starter.setVisible(true);
+      this.northMain.setVisible(false);
+      this.currentCard.setVisible(false);
+      this.southMain.setVisible(false);
+      this.setLayout(new FlowLayout());
+      this.add(starter);
+      
+      //If game has ended, display winner
+      if(this.model.getGameDisplay() == 5)
+      {
+        this.winnerofGameLabel.setText(this.model.getWinner());
+      }
+    }
+    
+    //Set to game screen
+    else if (this.model.getGameDisplay() == 2)
+    {
+      this.starter.setVisible(false);
+      this.northMain.setVisible(true);
+      this.currentCard.setVisible(true);
+      this.southMain.setVisible(true);
+      this.add(currentCard, BorderLayout.CENTER);
+    }
+    
+    //Set to end screen
+    else
+    {
+      this.starter.setVisible(false);
+      this.northMain.setVisible(false);
+      this.currentCard.setVisible(false);
+      this.southMain.setVisible(false);
+      this.setLayout(new FlowLayout());
+      this.add(endScreen);
+      
+      //Show round won depending on who won
+      if(this.model.getGameDisplay() == 3)
+      {
+        this.winner.setText("You have Won Round: " + this.model.getRoundNumber());
+      }
+      else
+      {
+        this.winner.setText("Computer has Won Round: " + this.model.getRoundNumber());
+      }
+    }
+    
+    //When the game starts
+    if (this.model.getGameDisplay() == 2)
+    {
+      //Clear Screen
+      this.removeAll();
+      this.northMain = new JPanel(); 
+      this.southMain = new JPanel();
+      this.currentCard = new JPanel();
+      this.compCards = new JPanel();
+      this.options = new JPanel();
+      this.playerCards = new JPanel(); 
+      this.stats = new JPanel(); 
+      
+      //Add the Computer Cards, if there are cards
+      this.compCards.setLayout(compCardsLayout);
+      this.options.setLayout(optionsLayout);
+      
+      if(this.model.isThereACardComputer(0))
+      {
+        this.computerCardImage[0] = new JLabel(this.model.getComputerImage(0));
+        this.compCards.add(computerCardImage[0]);
+      }
+      if(this.model.isThereACardComputer(1))
+      {
+        this.computerCardImage[1] = new JLabel(this.model.getComputerImage(1));
+        this.compCards.add(computerCardImage[1]);
+      }
+      if(this.model.isThereACardComputer(2))
+      {
+        this.computerCardImage[2] = new JLabel(this.model.getComputerImage(2));
+        this.compCards.add(computerCardImage[2]);
+      }
+      if(this.model.isThereACardComputer(3))
+      {
+        this.computerCardImage[3] = new JLabel(this.model.getComputerImage(3));
+        this.compCards.add(computerCardImage[3]);
+      }
+      if(this.model.isThereACardComputer(4))
+      {
+        this.computerCardImage[4] = new JLabel(this.model.getComputerImage(4));
+        this.compCards.add(computerCardImage[4]);
+      }
+      if(this.model.isThereACardComputer(5))
+      {
+        this.computerCardImage[5] = new JLabel(this.model.getComputerImage(5));
+        this.compCards.add(computerCardImage[5]);
+      }
+      if(this.model.isThereACardComputer(6))
+      {
+        this.computerCardImage[6] = new JLabel(this.model.getComputerImage(6));
+        this.compCards.add(computerCardImage[6]); 
+      }
+      
+      //Assemble components for options panel
+      this.exitButton.setPreferredSize(new Dimension(100,40));
+      this.options.add(exitButton);
+      this.options.add(replayButton);
+      
+      //Add the deck image and current card image
+      this.deckImage = new JLabel(deckImageIcon);
+      this.deckImage.setText("..");
+      this.currentCardImage = new JLabel(this.model.getCurrentCardImage());
+      this.currentCard.setLayout(currentCardLayout);
+      this.currentCard.add(deckImage);
+      this.currentCard.add(currentCardImage);
+      
+      //Add the Player Cards, if there are cards
+      this.playerCards.setLayout(playerCardsLayout);
+      this.stats.setLayout(statsLayout);
+      
+      if(this.model.isThereACardPlayer(0))
+      {
+        this.playerCardImage1 = new JLabel(this.model.getPlayerImage(0));
+        this.playerCardImage1.setText("^");
+        this.playerCards.add(playerCardImage1);
+      }
+      if(this.model.isThereACardPlayer(1))
+      {
+        this.playerCardImage2 = new JLabel(this.model.getPlayerImage(1));
+        this.playerCardImage2.setText(".");
+        this.playerCards.add(playerCardImage2);
+      }
+      if(this.model.isThereACardPlayer(2))
+      {
+        this.playerCardImage3 = new JLabel(this.model.getPlayerImage(2));
+        this.playerCardImage3.setText(",");
+        this.playerCards.add(playerCardImage3);
+      }
+      if(this.model.isThereACardPlayer(3))
+      {
+        this.playerCardImage4 = new JLabel(this.model.getPlayerImage(3));
+        this.playerCardImage4.setText("*");
+        this.playerCards.add(playerCardImage4);
+      }
+      if(this.model.isThereACardPlayer(4))
+      {
+        this.playerCardImage5 = new JLabel(this.model.getPlayerImage(4));
+        this.playerCardImage5.setText("-");
+        this.playerCards.add(playerCardImage5);
+      }
+      if(this.model.isThereACardPlayer(5))
+      {
+        this.playerCardImage6 = new JLabel(this.model.getPlayerImage(5));
+        this.playerCardImage6.setText("'");
+        this.playerCards.add(playerCardImage6);
+      }
+      if(this.model.isThereACardPlayer(6))
+      {
+        this.playerCardImage7 = new JLabel(this.model.getPlayerImage(6));
+        this.playerCardImage7.setText("!");
+        this.playerCards.add(playerCardImage7);
+      }
+      
+      //Assemble components for stats panel
+      this.confirmButton.setPreferredSize(new Dimension(100,40));
+      this.stats.add(confirmButton);
+      this.stats.add(playerScores);
+      this.stats.add(movesTaken);
+      
+      //Add all components to this panel
+      this.northMain.add(compCards);
+      this.northMain.add(options);
+      this.southMain.add(playerCards);
+      this.southMain.add(stats);
+      this.setLayout(mainLayout);
+      this.add(northMain, BorderLayout.NORTH);
+      this.add(currentCard, BorderLayout.CENTER);
+      this.add(southMain, BorderLayout.SOUTH);
+      
+      //Update States
+      this.playerScores.setText("           " + this.model.getPlayerWins() + " - " + this.model.getComputerWins());  //Shows the score of both player and computer
+      this.movesTaken.setText("       Moves: "+ this.model.getMovesTaken());         //Shows the moves taken of the player                        
+      
+      this.registerControllers();   //Add controllers to the labels
+      this.updateUI();              //Update game screen
+    }
+    
+    
+    
+  }
+}
