@@ -1,0 +1,57 @@
+/* Crazy Eight Button Controller
+ * Created by Saad Butt
+ * Last Updated 2025/01/20
+ * To create a button controller for the Crazy Eight game
+ */
+
+import javax.swing.*;
+import java.awt.event.*;
+
+public class CrazyEightButtonController extends Object implements ActionListener
+{
+  private CrazyEightGame model;   //The Model of the game
+  private JTextField roundNumber; //The round number
+  
+  /*Default Constructor
+   * JButton component is connected to the Model
+   * Param: The current Game model, the round number TextFeild
+   */
+  public CrazyEightButtonController(CrazyEightGame model, JTextField roundNumber)
+  {
+    super();
+    this.model = model;
+    this.roundNumber = roundNumber;
+  }
+  
+  /*Based on the button clicked the appropriate method is called
+   * Param: The event sent from a click of a JButton
+   */
+  public void actionPerformed(ActionEvent e)
+  {
+    if(((JButton)e.getSource()).getText() == "Start")
+    {
+      this.model.startGame(this.roundNumber.getText());  //Start Game
+    }
+    else if (((JButton)e.getSource()).getText() == "Retry")
+    { 
+      this.model.retry();                               //Retry Round
+    }
+    else if(((JButton)e.getSource()).getText() == "Confirm")
+    {
+      this.model.confirmMove();                        //Confirm Action
+    }
+    else if (((JButton)e.getSource()).getText() == "Next Round")
+    {
+      this.model.nextRound();                           //Go next Round
+    }
+    else if (((JButton)e.getSource()).getText() == "load Game")
+    {
+      
+    }
+    else
+    {
+      this.model.exitGame();                           //Exit the current Game
+    }
+    
+  }
+}
