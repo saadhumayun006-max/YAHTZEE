@@ -1,0 +1,281 @@
+/* Crazy Eight Game 
+ * Created by Saad Butt
+ * Last Updated 2025/01/20
+ * To create the Crazy Eight Game
+ */
+import javax.imageio.*;
+import javax.swing.*;
+
+public class CrazyEightGame
+{
+  //Variable Decleration & Initliazation
+  private CrazyEightView gameView;                  //The view of the game
+  private int rounds;                               //The rounds of the game
+  private int currentRound;                         //The current round of the game
+  private int gameDisplay;                          //The game display
+  private int computerWins;                         //The number of rounds the computer has won
+  private int playerWins;                           //The number of rounds the player has won
+  private int movesTaken;                           //The number of moves the player has taken
+  private Card currentCard = new Card();            //The current card the player and computer have to match the Rank or Suit
+  private boolean [] cardSelected = new boolean[7]; //The player selection of cards he wants to place
+  private Player player = new Player();             //The player from the player class
+  private Computer computer = new Computer();       //The computer from the computer class
+  
+  
+  
+  /* Default Constructor
+   * Sets game display to 1 
+   * Sets all player and computer stats to zero
+   */
+  public CrazyEightGame()
+  {
+    super();
+    this.gameDisplay = 1;
+    currentRound = 0;
+    computerWins = 0;
+    playerWins = 0;
+    movesTaken = 0;
+  }
+  
+  /* Checks if the game is done
+   * Changes game display depending on who won
+   * Updates the current round and wins
+   */ 
+  private void isGameDone()
+  {
+    if(this.player.isHandEmpty())
+    {
+      playerWins++;
+      gameDisplay = 3;
+      this.currentRound++;
+      this.hasGameEnded();
+    }
+    else if(this.computer.isHandEmpty())
+    {
+      computerWins++;
+      gameDisplay = 4;
+      this.currentRound++;
+      this.hasGameEnded();
+    }
+  }
+  
+  /*Reset the cards choices of the player
+   * Sets the card selected array all to false*/ 
+  private void resetCardSelected()
+  {
+    for(int x = 0; x < 7; x++)
+    {
+      cardSelected[x] = false;
+    }
+  }
+  
+  //Set veiw for the game
+  public void setView(CrazyEightView currentView)
+  {
+    this.gameView = currentView;
+  }
+  
+  /*Starts the game
+   * Sets round number, gameDisplay and deals cards to the player and computer
+   * Param: roundNumber; the number of rounds the player would like
+   */
+  public void startGame(String roundNumber)
+  {
+    this.currentRound = 0;
+    this.rounds = Integer.parseInt(roundNumber);
+    this.gameDisplay = 2;
+    this.currentCard = this.player.dealCards();
+    this.computer.dealCards();
+    this.updateView();
+  }
+  
+  /*Starts the next game
+   * Resets moves taken, game display and deals cards to the player and computer again
+   */ 
+  public void nextRound()
+  {
+    this.movesTaken = 0;
+    this.gameDisplay = 2;
+    this.currentCard = this.player.dealCards();
+    this.computer.dealCards();
+    this.updateView();
+  }
+  
+  /* First checks to see if the card selection from the player abides by the rules, if not reset the players selection
+   * If true, player will place and than computer will place cards
+   */ 
+  public void confirmMove()
+  {
+    if(this.player.ifCanplaceCard(cardSelected, currentCard))
+    {
+      this.player.placeCard(cardSelected);
+      this.currentCard = this.computer.playHand(currentCard);
+      this.isGameDone();
+      this.movesTaken++;
+      this.resetCardSelected();
+      this.updateView();
+    }
+    else 
+    {
+      this.resetCardSelected();
+      this.updateView();
+    }
+  }
+  
+  /* Retry current round
+   * Deal new cards for both player and computer again 
+   */
+  public void retry()
+  {
+    this.currentCard = this.player.dealCards();
+    this.computer.dealCards();
+    this.movesTaken = 0;
+    this.updateView();
+  }
+  
+  //Exit game, go back to menu
+  public void exitGame()
+  {
+    this.gameDisplay = 1;
+    this.updateView();
+  }
+  
+  /* The card clicked, becomes apart of your card selected
+   * If the deck is clicked get one more random card
+   */
+  public void cardClicked(String card)
+  {
+    System.out.println(card);
+    switch(card)
+    {
+      case"^": 
+        cardSelected[0] = true;
+        break;
+      case".": 
+        cardSelected[1] = true;
+        break;
+      case",": 
+        cardSelected[2] = true;
+        break;
+      case"*": 
+        cardSelected[3] = true;
+        break;
+      case"-": 
+        cardSelected[4] = true;
+        break;
+      case"'": 
+        cardSelected[5] = true;
+        break;
+      case"!": 
+        cardSelected[6] = true;
+        break;
+      case"..": 
+        this.player.drawCard();
+        break;
+    }
+  }
+  
+  //Checks to see if the game has ended
+  private void hasGameEnded()
+  {
+    if(currentRound == rounds) 
+    {
+      this.gameDisplay = 5; 
+    }
+  }
+  
+  /*Gets the winner of the entire depending on rounds won
+   * Returns the winner in String
+   */
+  public String getWinner()
+  {
+    if(this.computerWins > this.playerWins)
+    {
+      return "Computer has Won";
+    }
+    else if(this.computerWins < this.playerWins)
+    {
+      return "Player has Won";
+    }
+    else if(this.computerWins == this.playerWins)
+    {
+      return "Its a Tie";
+    }
+    return "";
+  }
+  
+  //Gets the current round number
+  public int getRoundNumber()
+  {
+    return currentRound;  
+  }
+  
+  //Gets the current game display
+  public int getGameDisplay()
+  {
+    return this.gameDisplay;
+  }
+  
+  //Gets the player wins
+  public int getPlayerWins()
+  {
+    return this.playerWins;
+  }
+  
+  //Gets the computer wins
+  public int getComputerWins()
+  {
+    return this.computerWins;
+  }
+  
+  //Gets the moves taken
+  public int getMovesTaken()
+  {
+    return this.movesTaken; 
+  }
+  
+  /* Gets the Image associated with the Rank and Suit from the Players hand
+   * Param: card number
+   */
+  public ImageIcon getPlayerImage(int cardNumber)
+  {
+    return this.player.getImage(cardNumber);
+  }
+  
+  /* Gets the Image associated with the Rank and Suit from the Computers hand
+   * Param: card number
+   */  
+  public ImageIcon getComputerImage(int cardNumber)
+  {
+    return this.computer.getImage(cardNumber);
+  }
+  
+  /* Gets the Image associated with the Rank and Suit from the current card
+   */  
+  public ImageIcon getCurrentCardImage()
+  {
+    return this.currentCard.getImage();
+  }
+  
+  /* Checks to see if there is a card in the players hand based on the card number
+   * Param: card number; which card to check
+   */ 
+  public boolean isThereACardPlayer(int cardNumber)
+  {
+    return this.player.isThereACard(cardNumber);
+  }
+  
+  /* Checks to see if there is a card in the computers hand based on the card number
+   * Param: card number; which card to check
+   */ 
+  public boolean isThereACardComputer(int cardNumber)
+  {
+    return this.computer.isThereACard(cardNumber);
+  }
+  
+  //Updates the view of the game
+  public void updateView()
+  {
+    gameView.update();
+  }
+}
