@@ -1,0 +1,163 @@
+/* Player Class
+ * Created by Saad Butt
+ * Last Updated 2025/01/20
+ * To create a Computer Class that inherits Player class
+ */
+
+import javax.imageio.*;
+import javax.swing.*;
+
+public class Computer extends Player
+{
+  //Default Constructor
+  public Computer()
+  {
+    super(); 
+  }
+  
+  /*Computer places card depending on the hand it is given
+   * Computer first checks any multiple cards it can place, if it cant it checks if it has a similar rank or suit, if not draw card otherwise place card
+   * Changes the hand of the computer and the current card that the player has to match
+   * Param: current card 
+   */ 
+  public Card playHand(Card currentCard)
+  {
+    boolean playing = true;                   //if the computer hasnt done his turn yet
+    int rank;                                 //the Rank of the Card
+    char suit;                                //the Suit of the Card
+    boolean [] cardSelected = new boolean[7]; //the computers Card selection
+    
+    //While the computer hasnt made a turn
+    while(playing)
+    {
+      if(playing)
+      {
+        rank = this.numOfOneRank();
+        for(int x = 0; x < 7; x++)
+        {
+          if(this.hand[x].getRank() == rank)
+          {
+            cardSelected[x] = true;
+          }
+        }
+        
+        if(ifCanplaceCard(cardSelected, currentCard))
+        {
+          currentCard = this.placeCard(cardSelected);
+          playing = false;
+        }
+      }
+      
+      cardSelected = new boolean[7];
+      
+      if(this.sameRank(currentCard) > 0 && playing)
+      {
+        rank = this.sameRank(currentCard);
+        for(int x = 0; x < 7; x++)
+        {
+          if(this.hand[x].getRank() == rank)
+          {
+            cardSelected[x] = true;
+            x = 7;
+          }
+        }
+        if(ifCanplaceCard(cardSelected, currentCard))
+        {
+          currentCard = this.placeCard(cardSelected);
+          playing = false;
+        }
+      }
+      
+      cardSelected = new boolean[7];
+      
+      if(this.sameSuit(currentCard) != 'A' && playing)
+      {
+        suit = this.sameSuit(currentCard);
+        for(int x = 0; x < 7; x++)
+        {
+          if(this.hand[x].getSuit() == suit)
+          {
+            cardSelected[x] = true;
+            x = 7;
+          }
+        }
+        if(ifCanplaceCard(cardSelected, currentCard))
+        {
+          currentCard = this.placeCard(cardSelected);
+          playing = false;
+        }
+      }
+      
+      if(playing == true)
+      {
+        this.drawCard(); 
+      }
+    }
+    return currentCard;  
+  }
+  
+  
+  //Get the Rank with the highest number of Cards
+  public int numOfOneRank()
+  {
+    int [] rankNumber = new int [13];
+    int rank = 0;
+    int mostCards;
+    int highestCards = 0;
+    
+    for(int x = 0; x < 13; x++)
+    {
+      rank++;
+      for(int y = 0; y < 7; y++)
+      {
+        if(this.hand[y].getRank() == rank)
+        {
+          rankNumber[x]++;
+        }
+      }
+    }
+    
+    rank = 0;
+    
+    for(int x = 0; x < 13; x++)
+    {
+      if(rankNumber[x] > rank)
+      {
+        rank = rankNumber[x];
+        highestCards = x+1;
+      }
+      
+    }
+    return highestCards;
+  }
+  
+  //Checks to see what Rank in the Computers hand can be played
+  private int sameRank(Card currentCard)
+  {
+    int rank = 0;
+    
+    for(int x = 0; x < 7; x++)
+    {
+      if(this.hand[x].getRank() == currentCard.getRank())
+      {
+        rank = currentCard.getRank();
+      }
+    }
+    return rank;
+  }
+  
+  //Checks to see what Suit in the Computers hand can be played
+  private char sameSuit(Card currentCard)
+  {
+    char suit = 'A';
+    
+    for(int x = 0; x < 7; x++)
+    {
+      if(this.hand[x].getSuit() == currentCard.getSuit())
+      {
+        suit = currentCard.getSuit();
+      }
+    }
+    return suit;
+  }
+}
